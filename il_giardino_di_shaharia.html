@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il Giardino di Shaharia · Boutique Botanica di Rose</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Eleganti: Cormorant Garamond (Serif) e Plus Jakarta Sans (Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        crema: '#FAF8F5',
+                        sabbia: '#F2ECE4',
+                        salvia: {
+                            light: '#E3EAE2',
+                            DEFAULT: '#8FA98F',
+                            dark: '#5B755B',
+                        },
+                        bosco: {
+                            DEFAULT: '#243B2E',
+                            dark: '#18291F',
+                        },
+                        petalo: {
+                            light: '#FDF0F2',
+                            DEFAULT: '#E8A5B2',
+                            dark: '#C96A7E',
+                        },
+                        terracotta: '#C87A5A',
+                        oro: '#C5A059'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Animazioni naturali e fluide */
+        body {
+            background-color: #FAF8F5;
+            color: #243B2E;
+            overflow-x: hidden;
+        }
+
+        /* Contenitore petali cadenti sullo sfondo */
+        #petals-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .falling-petal {
+            position: absolute;
+            top: -10%;
+            opacity: 0.55;
+            animation: fallAndSway linear infinite;
+            user-select: none;
+        }
+
+        @keyframes fallAndSway {
+            0% {
+                transform: translateY(-5vh) translateX(0px) rotate(0deg);
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(50vh) translateX(35px) rotate(180deg);
+            }
+            85% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(108vh) translateX(-25px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Effetto lievitazione botanica sulle schede prodotto */
+        .rose-card {
+            transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .rose-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 35px -10px rgba(36, 59, 46, 0.12);
+        }
+        .rose-card .rose-art {
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .rose-card:hover .rose-art {
+            transform: scale(1.08) rotate(2deg);
+        }
+
+        /* Animazione comparsa sezioni */
+        .fade-section {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Animazione rimbalzo badge carrello */
+        @keyframes popBadge {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.35); }
+            100% { transform: scale(1); }
+        }
+        .badge-pop {
+            animation: popBadge 0.35s ease-out;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col relative selection:bg-petalo-light selection:text-bosco">
+
+    <!-- Sfondo animato con petali di rosa che cadono dolcemente -->
+    <div id="petals-container" aria-hidden="true"></div>
+
+    <!-- Notifica Toast (Sostituisce qualsiasi alert) -->
+    <div id="toast-box" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Testata / Intestazione del Negozio -->
+    <header class="sticky top-0 z-30 bg-crema/90 backdrop-blur-md border-b border-salvia-light shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <!-- Logo e Nome del Negozio -->
+            <button onclick="cambiaVista('vetrina')" class="flex items-center gap-3 text-left group focus:outline-none">
+                <span class="w-11 h-11 rounded-2xl bg-gradient-to-br from-petalo-light to-salvia-light border border-petalo/40 flex items-center justify-center text-2xl shadow-sm group-hover:scale-105 transition-transform">
+                    🌹
+                </span>
+                <div>
+                    <h1 id="shop-title" class="font-serif text-2xl sm:text-3xl font-bold text-bosco tracking-tight leading-none">
+                        Il Giardino di Shaharia
+                    </h1>
+                    <p class="text-xs text-salvia-dark font-medium mt-0.5 tracking-wide">
+                        Collezione Botanica &bull; Rose da ogni angolo del mondo
+                    </p>
+                </div>
+            </button>
+
+            <!-- Menu di Navigazione -->
+            <nav class="flex items-center gap-1.5 sm:gap-2 bg-sabbia/80 p-1.5 rounded-2xl border border-salvia-light/80">
+                <button id="nav-vetrina" onclick="cambiaVista('vetrina')" class="nav-btn px-3.5 py-2 rounded-xl text-sm font-semibold transition-all">
+                    Vetrina
+                </button>
+                <button id="nav-prodotti" onclick="cambiaVista('prodotti')" class="nav-btn px-3.5 py-2 rounded-xl text-sm font-semibold transition-all">
+                    Tutte le Rose
+                </button>
+                <button id="nav-carrello" onclick="cambiaVista('carrello')" class="nav-btn px-3.5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2">
+                    <span>Carrello</span>
+                    <span id="cart-badge" class="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full text-xs font-bold bg-petalo-dark text-white shadow-sm">
+                        0
+                    </span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenuto Principale -->
+    <main class="flex-grow relative z-10 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8">
+
+        <!-- ========================================================= -->
+        <!-- SEZIONE 1: VETRINA (index.html della dispensa)            -->
+        <!-- ========================================================= -->
+        <section id="view-vetrina" class="fade-section space-y-10">
+            <!-- Hero Banner Botanico -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-bosco via-bosco-dark to-[#2E4A39] text-crema p-7 sm:p-12 shadow-xl">
+                <!-- Decorazioni organiche sullo sfondo -->
+                <div class="absolute -right-12 -top-12 w-64 h-64 rounded-full bg-salvia/15 blur-2xl pointer-events-none"></div>
+                <div class="absolute right-10 -bottom-16 w-72 h-72 rounded-full bg-petalo/15 blur-2xl pointer-events-none"></div>
+
+                <div class="relative z-10 max-w-2xl space-y-5">
+                    <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-petalo-light text-xs font-semibold tracking-wider uppercase">
+                        🌿 Coltivate con cura e amore per la natura
+                    </span>
+                    <h2 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] text-crema">
+                        Ogni rosa racconta un'emozione unica.
+                    </h2>
+                    <p class="text-salvia-light/95 text-base sm:text-lg leading-relaxed">
+                        Benvenuti nel giardino di <strong>Shaharia</strong>. Scopri le nostre varietà più rare, profumate e vibranti: dai petali vellutati color rubino alle sfumature incantate della notte.
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="cambiaVista('prodotti')" class="px-6 py-3.5 rounded-2xl bg-petalo hover:bg-petalo-dark text-bosco-dark hover:text-white font-bold text-sm sm:text-base transition-all shadow-lg hover:shadow-petalo/30 flex items-center gap-2">
+                            <span>Esplora tutto il roseto</span>
+                            <span>→</span>
+                        </button>
+                        <button onclick="scrollToFeatured()" class="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-crema border border-white/20 font-semibold text-sm sm:text-base transition-all">
+                            Le 3 Rose in Evidenza
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vetrina: Le 3 rose principali (mostraProdotti("vetrina", 3)) -->
+            <div id="featured-anchor" class="space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-salvia-light pb-4">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-widest text-terracotta">Selezione della Settimana</p>
+                        <h3 class="font-serif text-3xl sm:text-4xl font-bold text-bosco mt-1">Le Rose in Vetrina</h3>
+                    </div>
+                    <button onclick="cambiaVista('prodotti')" class="text-sm font-semibold text-salvia-dark hover:text-bosco underline underline-offset-4 self-start sm:self-auto">
+                        Vedi tutte le 8 varietà disponibili &rarr;
+                    </button>
+                </div>
+
+                <!-- Griglia 3 schede vetrina -->
+                <div id="grid-vetrina" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+            </div>
+
+            <!-- Fascia informativa ispirata alla natura -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                <div class="bg-white/80 backdrop-blur-sm border border-salvia-light rounded-2xl p-5 flex items-start gap-4">
+                    <span class="text-2xl bg-salvia-light/70 p-2.5 rounded-xl">🌱</span>
+                    <div>
+                        <h4 class="font-serif text-xl font-bold text-bosco">Coltivazione Naturale</h4>
+                        <p class="text-xs text-bosco/75 mt-1 leading-relaxed">Rose recise al mattino presto per preservare rugiada, profumo e freschezza dei petali.</p>
+                    </div>
+                </div>
+                <div class="bg-white/80 backdrop-blur-sm border border-salvia-light rounded-2xl p-5 flex items-start gap-4">
+                    <span class="text-2xl bg-petalo-light p-2.5 rounded-xl">🎁</span>
+                    <div>
+                        <h4 class="font-serif text-xl font-bold text-bosco">Sconto Giardino 10%</h4>
+                        <p class="text-xs text-bosco/75 mt-1 leading-relaxed">Per tutti gli ordini superiori a 50,00 €, lo sconto del 10% si applica in automatico nel carrello.</p>
+                    </div>
+                </div>
+                <div class="bg-white/80 backdrop-blur-sm border border-salvia-light rounded-2xl p-5 flex items-start gap-4">
+                    <span class="text-2xl bg-sabbia p-2.5 rounded-xl">🧪</span>
+                    <div>
+                        <h4 class="font-serif text-xl font-bold text-bosco">Modello Didattico</h4>
+                        <p class="text-xs text-bosco/75 mt-1 leading-relaxed">Il carrello usa <code>localStorage</code> del browser e simula l'invio dell'email di conferma.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SEZIONE 2: TUTTE LE ROSE (prodotti.html della dispensa)   -->
+        <!-- ========================================================= -->
+        <section id="view-prodotti" class="hidden fade-section space-y-6">
+            <div class="bg-white/85 backdrop-blur-sm border border-salvia-light rounded-3xl p-6 sm:p-8 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-widest text-terracotta">Catalogo Completo</span>
+                        <h2 class="font-serif text-3xl sm:text-4xl font-bold text-bosco mt-1">Tutte le Rose di Shaharia</h2>
+                        <p class="text-sm text-bosco/75 mt-1">Scegli la varietà perfetta o filtra per tonalità e atmosfera.</p>
+                    </div>
+
+                    <!-- Filtri per colore / occasione -->
+                    <div id="filter-bar" class="flex flex-wrap gap-2">
+                        <button onclick="impostaFiltro('tutte')" data-filter="tutte" class="filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-bosco text-crema transition-all">
+                            Tutte (8)
+                        </button>
+                        <button onclick="impostaFiltro('passione')" data-filter="passione" class="filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-sabbia text-bosco hover:bg-salvia-light transition-all">
+                            ❤️ Passione &amp; Amore
+                        </button>
+                        <button onclick="impostaFiltro('purezza')" data-filter="purezza" class="filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-sabbia text-bosco hover:bg-salvia-light transition-all">
+                            🤍 Purezza &amp; Pace
+                        </button>
+                        <button onclick="impostaFiltro('sole')" data-filter="sole" class="filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-sabbia text-bosco hover:bg-salvia-light transition-all">
+                            ☀️ Energia &amp; Gioia
+                        </button>
+                        <button onclick="impostaFiltro('rare')" data-filter="rare" class="filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-sabbia text-bosco hover:bg-salvia-light transition-all">
+                            ✨ Rare &amp; Incantate
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Griglia completa dei prodotti -->
+            <div id="grid-prodotti" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SEZIONE 3: CARRELLO E MODULO ORDINE (carrello.html)       -->
+        <!-- ========================================================= -->
+        <section id="view-carrello" class="hidden fade-section space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-salvia-light pb-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-terracotta">Il Tuo Cesto Fiorito</span>
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-bosco mt-1">Carrello &amp; Conferma Ordine</h2>
+                </div>
+                <button id="btn-svuota-top" onclick="svuotaCarrelloUI()" class="hidden self-start sm:self-auto px-4 py-2 rounded-xl text-xs font-bold text-petalo-dark bg-petalo-light hover:bg-petalo-dark hover:text-white border border-petalo transition-all">
+                    🗑️ Svuota il carrello
+                </button>
+            </div>
+
+            <!-- Messaggio Carrello Vuoto -->
+            <div id="cart-empty-state" class="bg-white/90 border border-salvia-light rounded-3xl p-10 sm:p-14 text-center space-y-4 shadow-sm">
+                <div class="w-20 h-20 mx-auto rounded-full bg-salvia-light/60 flex items-center justify-center text-4xl">
+                    🧺
+                </div>
+                <h3 class="font-serif text-3xl font-bold text-bosco">Il carrello è vuoto</h3>
+                <p class="text-sm text-bosco/75 max-w-md mx-auto">
+                    Non hai ancora raccolto nessuna rosa nel tuo cesto. Torna nel giardino di Shaharia per scegliere i tuoi fiori preferiti!
+                </p>
+                <div class="pt-2">
+                    <button onclick="cambiaVista('prodotti')" class="px-6 py-3 rounded-2xl bg-bosco hover:bg-bosco-dark text-crema font-bold text-sm transition-all shadow-md">
+                        Vai a Tutte le Rose
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contenuto Carrello Pieno + Modulo -->
+            <div id="cart-filled-state" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                <!-- Colonna Sinistra: Tabella Prodotti e Riepilogo Prezzi (7 colonne) -->
+                <div class="lg:col-span-7 bg-white/95 border border-salvia-light rounded-3xl p-5 sm:p-6 shadow-sm space-y-5">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-salvia-light text-xs font-bold uppercase tracking-wider text-salvia-dark">
+                                    <th class="pb-3">Rosa</th>
+                                    <th class="pb-3 text-right">Prezzo</th>
+                                    <th class="pb-3 text-center">Quantità</th>
+                                    <th class="pb-3 text-right">Somma</th>
+                                    <th class="pb-3 text-right">Togli</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cart-table-body" class="divide-y divide-salvia-light/60 text-sm">
+                                <!-- Righe generate da JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Box Calcolo Totale e Sconto 10% (Cap. 9.2 dispensa) -->
+                    <div class="bg-sabbia/70 rounded-2xl p-4 sm:p-5 space-y-2.5 border border-salvia-light">
+                        <div class="flex justify-between text-sm text-bosco/80">
+                            <span>Subtotale articoli (<span id="summary-count">0</span> pezzi):</span>
+                            <span id="summary-subtotal" class="font-semibold">0,00 €</span>
+                        </div>
+
+                        <!-- Riga Sconto Automatico se > 50 € -->
+                        <div id="discount-row" class="hidden flex justify-between text-sm text-salvia-dark font-bold bg-salvia-light/60 px-3 py-2 rounded-xl">
+                            <span>🌿 Sconto Giardino (10% oltre 50 €):</span>
+                            <span id="summary-discount">- 0,00 €</span>
+                        </div>
+
+                        <div id="discount-hint" class="text-xs text-terracotta font-medium">
+                            <!-- Suggerimento dinamico quanto manca ai 50 € -->
+                        </div>
+
+                        <div class="border-t border-salvia-light pt-3 flex justify-between items-baseline">
+                            <span class="font-serif text-2xl font-bold text-bosco">Totale da pagare:</span>
+                            <span id="summary-total" class="font-serif text-3xl font-bold text-bosco">0,00 €</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Colonna Destra: Modulo Conferma Ordine (5 colonne) -->
+                <div class="lg:col-span-5 bg-white/95 border border-salvia-light rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+                    <div>
+                        <span class="inline-block px-2.5 py-1 rounded-lg bg-petalo-light text-petalo-dark text-xs font-bold">
+                            Simulazione Didattica
+                        </span>
+                        <h3 class="font-serif text-2xl font-bold text-bosco mt-2">Completa il tuo ordine</h3>
+                        <p class="text-xs text-bosco/75 mt-1 leading-relaxed">
+                            <strong>Nota importante:</strong> non inserire dati reali. Usa un nome di fantasia e un indirizzo di prova (es. <code class="bg-sabbia px-1 py-0.5 rounded">anna@esempio.example</code>).
+                        </p>
+                    </div>
+
+                    <form id="order-form" onsubmit="gestisciConfermaOrdine(event)" novalidate class="space-y-4">
+                        <div>
+                            <label for="input-nome" class="block text-xs font-bold uppercase tracking-wider text-bosco mb-1.5">
+                                Il tuo nome (di prova)
+                            </label>
+                            <input type="text" id="input-nome" placeholder="Es. Sofia Rossi" class="w-full px-4 py-3 rounded-xl bg-crema border border-salvia-light focus:border-bosco focus:ring-2 focus:ring-salvia/30 outline-none text-sm transition-all">
+                        </div>
+
+                        <div>
+                            <label for="input-email" class="block text-xs font-bold uppercase tracking-wider text-bosco mb-1.5">
+                                La tua email (di prova)
+                            </label>
+                            <input type="email" id="input-email" placeholder="Es. sofia@giardino.example" class="w-full px-4 py-3 rounded-xl bg-crema border border-salvia-light focus:border-bosco focus:ring-2 focus:ring-salvia/30 outline-none text-sm transition-all">
+                        </div>
+
+                        <!-- Messaggio di errore validazione in rosso -->
+                        <div id="form-error-box" class="hidden p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-start gap-2">
+                            <span>⚠️</span>
+                            <span id="form-error-text"></span>
+                        </div>
+
+                        <button type="submit" class="w-full py-3.5 px-6 rounded-2xl bg-bosco hover:bg-bosco-dark text-crema font-bold text-base shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
+                            <span>🌹 Conferma ordine</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- SEZIONE 4: FINTA EMAIL DI SERVIZIO (conferma.html)        -->
+        <!-- ========================================================= -->
+        <section id="view-conferma" class="hidden fade-section max-w-3xl mx-auto space-y-6">
+            <!-- Banner rosso della simulazione (come da dispensa cap. 3.4) -->
+            <div class="bg-red-50 border-2 border-red-300 rounded-2xl p-4 flex items-center gap-3.5 text-red-800 shadow-sm">
+                <span class="text-2xl">📢</span>
+                <div>
+                    <p class="font-bold text-sm sm:text-base">
+                        Questa email è una simulazione: non è stata inviata.
+                    </p>
+                    <p class="text-xs text-red-700 mt-0.5">
+                        Nessun dato è uscito dal tuo browser. L'ordine è salvato solo nella memoria locale (<code class="bg-red-100 px-1 rounded">localStorage</code>).
+                    </p>
+                </div>
+            </div>
+
+            <!-- Caso in cui non ci sia nessun ordine -->
+            <div id="no-order-box" class="hidden bg-white border border-salvia-light rounded-3xl p-10 text-center space-y-4">
+                <p class="text-3xl">📭</p>
+                <h3 class="font-serif text-2xl font-bold text-bosco">Non c'è nessun ordine</h3>
+                <p class="text-sm text-bosco/75">Torna al carrello e compila il modulo per generare la ricevuta simulata.</p>
+                <button onclick="cambiaVista('carrello')" class="px-5 py-2.5 rounded-xl bg-bosco text-crema text-sm font-bold">
+                    Vai al Carrello
+                </button>
+            </div>
+
+            <!-- Finestra della Finta Email -->
+            <div id="email-preview-card" class="bg-white border border-salvia-light rounded-3xl shadow-lg overflow-hidden">
+                <!-- Barra superiore stile client di posta -->
+                <div class="bg-bosco text-crema px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-xl">✉️</span>
+                        <span class="font-serif text-xl font-bold">Ricevuta Ordine Simulato</span>
+                    </div>
+                    <span id="email-order-num" class="text-xs font-mono bg-white/15 px-3 py-1 rounded-full">
+                        Ordine #0000
+                    </span>
+                </div>
+
+                <!-- Intestazioni Email: Da, A, Oggetto -->
+                <div class="bg-sabbia/60 px-6 py-4 border-b border-salvia-light space-y-2 text-sm">
+                    <div class="flex flex-col sm:flex-row sm:gap-3">
+                        <span class="font-bold text-salvia-dark w-20">Da:</span>
+                        <span id="email-from" class="font-mono text-bosco">ordini@giardino-shaharia.example</span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:gap-3">
+                        <span class="font-bold text-salvia-dark w-20">A:</span>
+                        <span id="email-to" class="font-mono text-bosco"></span>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:gap-3">
+                        <span class="font-bold text-salvia-dark w-20">Oggetto:</span>
+                        <span id="email-subject" class="font-bold text-bosco"></span>
+                    </div>
+                </div>
+
+                <!-- Corpo dell'email -->
+                <div class="p-6 sm:p-8">
+                    <pre id="email-body" class="whitespace-pre-wrap font-sans text-sm sm:text-base text-bosco leading-relaxed bg-crema p-5 rounded-2xl border border-salvia-light"></pre>
+                </div>
+
+                <!-- Azioni in fondo: Nuovo ordine + Mailto facoltativo (Cap. 9.1) -->
+                <div class="px-6 py-5 bg-sabbia/40 border-t border-salvia-light flex flex-wrap items-center justify-between gap-3">
+                    <button onclick="faiNuovoOrdine()" class="px-5 py-3 rounded-2xl bg-bosco hover:bg-bosco-dark text-crema font-bold text-sm transition-all shadow-sm">
+                        🌱 Fai un nuovo ordine
+                    </button>
+
+                    <a id="mailto-link" href="#" class="px-5 py-3 rounded-2xl bg-white hover:bg-salvia-light text-bosco border border-salvia-dark/30 font-semibold text-sm transition-all flex items-center gap-2">
+                        <span>📤 Apri il programma di posta (mailto:)</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Naturale -->
+    <footer class="relative z-10 mt-12 border-t border-salvia-light bg-sabbia/60 py-6 px-4 text-center text-xs text-bosco/75">
+        <p class="font-serif text-base font-bold text-bosco">🌹 Il Giardino di Shaharia</p>
+        <p class="mt-1">Negozio didattico in HTML, CSS e JavaScript &bull; Dati salvati in <code class="bg-white/80 px-1.5 py-0.5 rounded">localStorage</code> &bull; Nessun pagamento reale</p>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- LOGICA JAVASCRIPT (carrello.js + pagine.js uniti e ben commentati)    -->
+    <!-- ===================================================================== -->
+    <script>
+        /* =================================================================
+           PARTE 1: CONFIGURAZIONE DEL NEGOZIO (equivalente a carrello.js)
+           ================================================================= */
+        var NEGOZIO = "Il Giardino di Shaharia";
+        var MITTENTE = "ordini@giardino-shaharia.example";
+        var TESTO_EMAIL = "Grazie di cuore per aver scelto le rose del Giardino di Shaharia! I nostri fiori vengono recisi all'alba e preparati con cura botanica.";
+
+        // Catalogo completo delle rose con illustrazioni SVG personalizzate per ciascuna varietà
+        var PRODOTTI = [
+            {
+                id: "damascena",
+                nome: "Rosa Rossa Damascena",
+                prezzo: 14.50,
+                categoria: "passione",
+                coloreBadge: "Rosso Velluto",
+                descrizione: "Petali intensi e profumo avvolgente di spezie dolci. La regina classica dell'amore.",
+                colorePetalo: "#B91C1C",
+                coloreCentro: "#7F1D1D"
+            },
+            {
+                id: "blunotte",
+                nome: "Rosa Blu Notte Incantata",
+                prezzo: 22.00,
+                categoria: "rare",
+                coloreBadge: "Blu Zaffiro",
+                descrizione: "Una rarità botanica dai riflessi lunari, simbolo di mistero e sogni infiniti.",
+                colorePetalo: "#1D4ED8",
+                coloreCentro: "#1E3A8A"
+            },
+            {
+                id: "cipria",
+                nome: "Rosa Cipria di Primavera",
+                prezzo: 12.00,
+                categoria: "purezza",
+                coloreBadge: "Rosa Pastello",
+                descrizione: "Delicata come l'alba nei giardini fioriti, perfetta per esprimere dolcezza e gratitudine.",
+                colorePetalo: "#F472B6",
+                coloreCentro: "#BE185D"
+            },
+            {
+                id: "giallasole",
+                nome: "Rosa Gialla del Sole",
+                prezzo: 11.50,
+                categoria: "sole",
+                coloreBadge: "Giallo Oro",
+                descrizione: "Luminosa e vibrante, porta il calore dell'estate e la gioia dell'amicizia sincera.",
+                colorePetalo: "#F59E0B",
+                coloreCentro: "#B45309"
+            },
+            {
+                id: "biancacandida",
+                nome: "Rosa Bianca Candida",
+                prezzo: 13.00,
+                categoria: "purezza",
+                coloreBadge: "Bianco Perla",
+                descrizione: "Petali puri come neve fresca al mattino, emblema di armonia e nuovi inizi.",
+                colorePetalo: "#E2E8F0",
+                coloreCentro: "#94A3B8"
+            },
+            {
+                id: "selvatica",
+                nome: "Rosa Canina Selvatica",
+                prezzo: 9.90,
+                categoria: "passione",
+                coloreBadge: "Corallo Antico",
+                descrizione: "Spontanea e ribelle come i sentieri di bosco, dal profumo fresco e campestre.",
+                colorePetalo: "#E11D48",
+                coloreCentro: "#9F1239"
+            },
+            {
+                id: "pescaaurora",
+                nome: "Rosa Pesca dell'Aurora",
+                prezzo: 15.00,
+                categoria: "sole",
+                coloreBadge: "Albicocca Caldo",
+                descrizione: "Sfumature calde tra arancio e rosa antico, ideale per celebrare momenti speciali.",
+                colorePetalo: "#FB923C",
+                coloreCentro: "#C2410C"
+            },
+            {
+                id: "arcobaleno",
+                nome: "Rosa Arcobaleno di Shaharia",
+                prezzo: 26.50,
+                categoria: "rare",
+                coloreBadge: "Multicolore Rara",
+                descrizione: "La creazione più straordinaria del nostro giardino: ogni petalo racchiude un colore della natura.",
+                colorePetalo: "url(#rainbowGrad)",
+                coloreCentro: "#7E22CE"
+            }
+        ];
+
+        /* =================================================================
+           PARTE 2: MEMORIA LOCALSTORAGE E FUNZIONI DEL CARRELLO
+           ================================================================= */
+        
+        // Legge in sicurezza da localStorage evitando errori se il JSON è vuoto o corrotto
+        function leggi(chiave, base) {
+            try {
+                var dato = localStorage.getItem(chiave);
+                return dato ? JSON.parse(dato) : base;
+            } catch (e) {
+                return base;
+            }
+        }
+
+        // Salva in localStorage
+        function salva(chiave, valore) {
+            try {
+                localStorage.setItem(chiave, JSON.stringify(valore));
+            } catch (e) {
+                console.warn("Memoria browser non disponibile:", e);
+            }
+        }
+
+        // Formatta un numero in euro (es. 25 -> "25,00 €")
+        function euro(n) {
+            return n.toFixed(2).replace(".", ",") + " €";
+        }
+
+        // Trova un prodotto dal suo id
+        function trova(id) {
+            for (var i = 0; i < PRODOTTI.length; i++) {
+                if (PRODOTTI[i].id === id) return PRODOTTI[i];
+            }
+            return null;
+        }
+
+        // Stato globale del carrello e filtro attivo
+        var carrello = leggi("shaharia_carrello", {});
+        var filtroAttivo = "tutte";
+
+        // Aggiunge 1 unità (con limite massimo opzionale di 10 per articolo)
+        function aggiungi(id) {
+            var attuale = carrello[id] || 0;
+            if (attuale >= 10) {
+                mostraNotifica("Hai raggiunto il limite massimo di 10 mazzi per questa varietà.", "info");
+                return;
+            }
+            carrello[id] = attuale + 1;
+            salva("shaharia_carrello", carrello);
+            aggiornaBadgeCarrello(true);
+
+            var prod = trova(id);
+            if (prod) {
+                mostraNotifica("🌹 Aggiunta: " + prod.nome + " al cesto!", "success");
+            }
+        }
+
+        // Cambia quantità (+1 o -1)
+        function cambia(id, delta) {
+            var nuovaQta = (carrello[id] || 0) + delta;
+            if (nuovaQta <= 0) {
+                delete carrello[id];
+            } else if (nuovaQta <= 10) {
+                carrello[id] = nuovaQta;
+            } else {
+                mostraNotifica("Massimo 10 pezzi per articolo.", "info");
+                return;
+            }
+            salva("shaharia_carrello", carrello);
+            aggiornaBadgeCarrello(false);
+            mostraCarrello();
+        }
+
+        // Rimuove completamente un prodotto
+        function togli(id) {
+            delete carrello[id];
+            salva("shaharia_carrello", carrello);
+            aggiornaBadgeCarrello(false);
+            mostraCarrello();
+            mostraNotifica("Articolo rimosso dal carrello.", "info");
+        }
+
+        // Svuota tutto il carrello
+        function svuota() {
+            carrello = {};
+            salva("shaharia_carrello", carrello);
+            aggiornaBadgeCarrello(false);
+        }
+
+        // Restituisce l'elenco delle righe del carrello
+        function righe() {
+            var elenco = [];
+            for (var id in carrello) {
+                if (Object.prototype.hasOwnProperty.call(carrello, id)) {
+                    var p = trova(id);
+                    var q = carrello[id];
+                    if (p && q > 0) {
+                        var somma = Math.round(p.prezzo * q * 100) / 100;
+                        elenco.push({
+                            id: p.id,
+                            nome: p.nome,
+                            prezzo: p.prezzo,
+                            quantita: q,
+                            somma: somma,
+                            colorePetalo: p.colorePetalo,
+                            coloreCentro: p.coloreCentro
+                        });
+                    }
+                }
+            }
+            return elenco;
+        }
+
+        // Calcola subtotale, eventuale sconto 10% sopra i 50 € e totale finale
+        function calcolaImporti() {
+            var lista = righe();
+            var subtotale = lista.reduce(function (acc, r) {
+                return Math.round((acc + r.somma) * 100) / 100;
+            }, 0);
+
+            var sconto = 0;
+            if (subtotale > 50) {
+                sconto = Math.round(subtotale * 0.10 * 100) / 100;
+            }
+            var totaleFinale = Math.round((subtotale - sconto) * 100) / 100;
+
+            return {
+                subtotale: subtotale,
+                sconto: sconto,
+                totale: totaleFinale
+            };
+        }
+
+        // Conta il numero totale di pezzi nel carrello
+        function pezzi() {
+            var tot = 0;
+            for (var id in carrello) {
+                if (Object.prototype.hasOwnProperty.call(carrello, id)) {
+                    tot += carrello[id];
+                }
+            }
+            return tot;
+        }
+
+        /* =================================================================
+           PARTE 3: DISEGNO DELL'INTERFACCIA (equivalente a pagine.js)
+           ================================================================= */
+
+        // Rende sicuro un testo contro caratteri HTML
+        function esc(t) {
+            return String(t)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        // Disegna un'illustrazione vettoriale (SVG) elegante della rosa con i suoi colori
+        function disegnaRosaSVG(colorePetalo, coloreCentro, sizeClass) {
+            return `
+                <svg class="${sizeClass}" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="rainbowGrad" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#F43F5E"/>
+                            <stop offset="33%" stop-color="#F59E0B"/>
+                            <stop offset="66%" stop-color="#10B981"/>
+                            <stop offset="100%" stop-color="#6366F1"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Stelo e foglie verdi -->
+                    <path d="M60 68 C58 86, 62 100, 60 114" stroke="#3F624D" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M60 88 C45 84, 38 74, 42 66 C52 66, 58 76, 60 88 Z" fill="#5B755B"/>
+                    <path d="M60 96 C75 92, 82 82, 78 74 C68 74, 62 84, 60 96 Z" fill="#8FA98F"/>
+                    <!-- Petali esterni -->
+                    <circle cx="60" cy="45" r="28" fill="${colorePetalo}" fill-opacity="0.88"/>
+                    <ellipse cx="44" cy="44" rx="16" ry="22" transform="rotate(-20 44 44)" fill="${colorePetalo}"/>
+                    <ellipse cx="76" cy="44" rx="16" ry="22" transform="rotate(20 76 44)" fill="${colorePetalo}"/>
+                    <!-- Petali medi e cuore della rosa -->
+                    <circle cx="60" cy="44" r="18" fill="${coloreCentro}" fill-opacity="0.35"/>
+                    <path d="M46 42 C46 30, 74 30, 74 42 C74 54, 46 54, 46 42 Z" fill="${colorePetalo}"/>
+                    <path d="M51 41 C53 33, 67 33, 69 41 C67 48, 53 48, 51 41 Z" fill="${coloreCentro}" fill-opacity="0.65"/>
+                    <path d="M56 41 C58 37, 62 37, 64 41" stroke="#FAF8F5" stroke-width="1.8" stroke-linecap="round" stroke-opacity="0.7"/>
+                </svg>
+            `;
+        }
+
+        // Genera l'HTML di una singola scheda prodotto
+        function creaSchedaProdotto(p) {
+            return `
+                <article class="rose-card bg-white/95 border border-salvia-light rounded-3xl p-5 flex flex-col justify-between shadow-sm">
+                    <div>
+                        <!-- Area illustrazione botanica -->
+                        <div class="relative h-44 rounded-2xl bg-gradient-to-b from-crema to-sabbia/80 border border-salvia-light/70 flex items-center justify-center overflow-hidden mb-4">
+                            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 text-[11px] font-bold text-bosco shadow-xs border border-salvia-light">
+                                ${esc(p.coloreBadge)}
+                            </span>
+                            <div class="rose-art">
+                                ${disegnaRosaSVG(p.colorePetalo, p.coloreCentro, "w-28 h-28 drop-shadow-md")}
+                            </div>
+                        </div>
+
+                        <!-- Titolo e descrizione -->
+                        <h4 class="font-serif text-2xl font-bold text-bosco leading-snug">
+                            ${esc(p.nome)}
+                        </h4>
+                        <p class="text-xs text-bosco/75 mt-1.5 leading-relaxed">
+                            ${esc(p.descrizione)}
+                        </p>
+                    </div>
+
+                    <!-- Prezzo e Bottone Aggiungi -->
+                    <div class="pt-5 mt-4 border-t border-salvia-light/70 flex items-center justify-between gap-2">
+                        <div>
+                            <span class="block text-[10px] uppercase tracking-wider text-salvia-dark font-bold">Prezzo al mazzo</span>
+                            <span class="font-serif text-2xl font-bold text-bosco">${euro(p.prezzo)}</span>
+                        </div>
+
+                        <button onclick="aggiungi('${esc(p.id)}')" class="px-4 py-2.5 rounded-2xl bg-bosco hover:bg-salvia-dark active:scale-95 text-crema text-xs sm:text-sm font-bold transition-all shadow-sm flex items-center gap-1.5">
+                            <span>+ Aggiungi</span>
+                        </button>
+                    </div>
+                </article>
+            `;
+        }
+
+        // Disegna i prodotti nella vetrina (primi 3) o nel catalogo completo
+        function mostraProdotti(dove, quanti) {
+            var contenitore = document.getElementById("grid-" + dove);
+            if (!contenitore) return;
+
+            var lista = PRODOTTI;
+            if (dove === "prodotti" && filtroAttivo !== "tutte") {
+                lista = PRODOTTI.filter(function (p) {
+                    return p.categoria === filtroAttivo;
+                });
+            }
+
+            if (typeof quanti === "number") {
+                lista = lista.slice(0, quanti);
+            }
+
+            contenitore.innerHTML = lista.map(creaSchedaProdotto).join("");
+        }
+
+        // Gestisce i pulsanti filtro nella pagina "Tutte le Rose"
+        function impostaFiltro(cat) {
+            filtroAttivo = cat;
+            var bottoni = document.querySelectorAll(".filter-btn");
+            bottoni.forEach(function (btn) {
+                if (btn.getAttribute("data-filter") === cat) {
+                    btn.className = "filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-bosco text-crema transition-all shadow-xs";
+                } else {
+                    btn.className = "filter-btn px-3.5 py-2 rounded-xl text-xs font-semibold bg-sabbia text-bosco hover:bg-salvia-light transition-all";
+                }
+            });
+            mostraProdotti("prodotti");
+        }
+
+        // Aggiorna il contatore nel menu
+        function aggiornaBadgeCarrello(anima) {
+            var badge = document.getElementById("cart-badge");
+            if (!badge) return;
+            badge.textContent = pezzi();
+            if (anima) {
+                badge.classList.remove("badge-pop");
+                void badge.offsetWidth; // forza reflow per riavviare animazione
+                badge.classList.add("badge-pop");
+            }
+        }
+
+        // Disegna la tabella del carrello e i totali
+        function mostraCarrello() {
+            var elenco = righe();
+            var emptyBox = document.getElementById("cart-empty-state");
+            var filledBox = document.getElementById("cart-filled-state");
+            var btnSvuotaTop = document.getElementById("btn-svuota-top");
+
+            if (elenco.length === 0) {
+                emptyBox.classList.remove("hidden");
+                filledBox.classList.add("hidden");
+                btnSvuotaTop.classList.add("hidden");
+                return;
+            }
+
+            emptyBox.classList.add("hidden");
+            filledBox.classList.remove("hidden");
+            btnSvuotaTop.classList.remove("hidden");
+
+            var tbody = document.getElementById("cart-table-body");
+            tbody.innerHTML = elenco.map(function (r) {
+                return `
+                    <tr class="group">
+                        <td class="py-3.5 pr-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-sabbia flex items-center justify-center shrink-0">
+                                    ${disegnaRosaSVG(r.colorePetalo, r.coloreCentro, "w-8 h-8")}
+                                </div>
+                                <span class="font-bold text-bosco text-sm">${esc(r.nome)}</span>
+                            </div>
+                        </td>
+                        <td class="py-3.5 text-right text-bosco/80 whitespace-nowrap">${euro(r.prezzo)}</td>
+                        <td class="py-3.5">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="cambia('${esc(r.id)}', -1)" aria-label="Diminuisci" class="w-7 h-7 rounded-lg bg-sabbia hover:bg-salvia-light font-bold text-bosco flex items-center justify-center transition-colors">−</button>
+                                <span class="w-7 text-center font-bold text-bosco">${r.quantita}</span>
+                                <button onclick="cambia('${esc(r.id)}', 1)" aria-label="Aumenta" class="w-7 h-7 rounded-lg bg-sabbia hover:bg-salvia-light font-bold text-bosco flex items-center justify-center transition-colors">+</button>
+                            </div>
+                        </td>
+                        <td class="py-3.5 text-right font-bold text-bosco whitespace-nowrap">${euro(r.somma)}</td>
+                        <td class="py-3.5 text-right">
+                            <button onclick="togli('${esc(r.id)}')" title="Rimuovi riga" class="p-1.5 rounded-lg text-petalo-dark hover:bg-petalo-light transition-colors">
+                                ✕
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+
+            // Aggiorna riepilogo importi
+            var importi = calcolaImporti();
+            document.getElementById("summary-count").textContent = pezzi();
+            document.getElementById("summary-subtotal").textContent = euro(importi.subtotale);
+            document.getElementById("summary-total").textContent = euro(importi.totale);
+
+            var discountRow = document.getElementById("discount-row");
+            var discountHint = document.getElementById("discount-hint");
+
+            if (importi.sconto > 0) {
+                discountRow.classList.remove("hidden");
+                document.getElementById("summary-discount").textContent = "- " + euro(importi.sconto);
+                discountHint.textContent = "✨ Complimenti! Hai sbloccato lo sconto botanico del 10%.";
+            } else {
+                discountRow.classList.add("hidden");
+                var mancanti = Math.round((50.01 - importi.subtotale) * 100) / 100;
+                discountHint.textContent = "💡 Aggiungi ancora " + euro(mancanti) + " di rose per ricevere il 10% di sconto!";
+            }
+        }
+
+        function svuotaCarrelloUI() {
+            svuota();
+            mostraCarrello();
+            mostraNotifica("Il carrello è stato svuotato.", "info");
+        }
+
+        /* =================================================================
+           PARTE 4: VALIDAZIONE MODULO E FINTA EMAIL DI CONFERMA
+           ================================================================= */
+
+        function gestisciConfermaOrdine(event) {
+            event.preventDefault();
+
+            var nomeInput = document.getElementById("input-nome").value.trim();
+            var emailInput = document.getElementById("input-email").value.trim();
+            var errorBox = document.getElementById("form-error-box");
+            var errorText = document.getElementById("form-error-text");
+
+            // Controllo campi
+            if (nomeInput.length < 2) {
+                errorText.textContent = "Scrivi un nome di prova (almeno 2 caratteri).";
+                errorBox.classList.remove("hidden");
+                return;
+            }
+            if (emailInput.indexOf("@") === -1 || emailInput.indexOf(".") === -1) {
+                errorText.textContent = "Inserisci un'email di prova valida (deve contenere @ e un punto, es. prova@esempio.example).";
+                errorBox.classList.remove("hidden");
+                return;
+            }
+            if (pezzi() === 0) {
+                errorText.textContent = "Il carrello è vuoto.";
+                errorBox.classList.remove("hidden");
+                return;
+            }
+
+            errorBox.classList.add("hidden");
+
+            // Crea l'oggetto ordine
+            var importi = calcolaImporti();
+            var numeroOrdine = Math.floor(1000 + Math.random() * 9000);
+            var ordine = {
+                numero: numeroOrdine,
+                data: new Date().toLocaleDateString("it-IT"),
+                cliente: nomeInput,
+                email: emailInput,
+                righe: righe(),
+                subtotale: importi.subtotale,
+                sconto: importi.sconto,
+                totale: importi.totale
+            };
+
+            // Salva ultimo ordine in localStorage e svuota il carrello
+            salva("shaharia_ultimo_ordine", ordine);
+            svuota();
+
+            // Resetta form
+            document.getElementById("input-nome").value = "";
+            document.getElementById("input-email").value = "";
+
+            // Passa alla schermata di conferma
+            cambiaVista("conferma");
+        }
+
+        // Compone il testo della finta email
+        function corpoEmail(o) {
+            var testo = "Ciao " + o.cliente + ",\n\n";
+            testo += TESTO_EMAIL + "\n\n";
+            testo += "RIEPILOGO DEL TUO ORDINE (#" + o.numero + " del " + o.data + "):\n";
+            testo += "--------------------------------------------------\n";
+
+            o.righe.forEach(function (r) {
+                testo += "• " + r.nome + " x" + r.quantita + " (" + euro(r.prezzo) + " cad.) = " + euro(r.somma) + "\n";
+            });
+
+            testo += "--------------------------------------------------\n";
+            testo += "Subtotale: " + euro(o.subtotale) + "\n";
+            if (o.sconto > 0) {
+                testo += "Sconto Giardino (10%): -" + euro(o.sconto) + "\n";
+            }
+            testo += "TOTALE ORDINE: " + euro(o.totale) + "\n\n";
+            testo += "A presto tra i profumi della natura,\n";
+            testo += NEGOZIO;
+            return testo;
+        }
+
+        // Popola la pagina di conferma simulata
+        function mostraConferma() {
+            var ordine = leggi("shaharia_ultimo_ordine", null);
+            var noOrderBox = document.getElementById("no-order-box");
+            var emailCard = document.getElementById("email-preview-card");
+
+            if (!ordine) {
+                noOrderBox.classList.remove("hidden");
+                emailCard.classList.add("hidden");
+                return;
+            }
+
+            noOrderBox.classList.add("hidden");
+            emailCard.classList.remove("hidden");
+
+            var oggetto = "Conferma ordine #" + ordine.numero + " · " + NEGOZIO;
+            var corpo = corpoEmail(ordine);
+
+            document.getElementById("email-order-num").textContent = "Ordine #" + ordine.numero;
+            document.getElementById("email-from").textContent = MITTENTE;
+            document.getElementById("email-to").textContent = ordine.cliente + " <" + ordine.email + ">";
+            document.getElementById("email-subject").textContent = oggetto;
+            document.getElementById("email-body").textContent = corpo;
+
+            // Link facoltativo mailto: (Cap. 9.1 dispensa)
+            var mailtoHref = "mailto:" + encodeURIComponent(ordine.email) +
+                "?subject=" + encodeURIComponent(oggetto) +
+                "&body=" + encodeURIComponent(corpo);
+            document.getElementById("mailto-link").setAttribute("href", mailtoHref);
+        }
+
+        // Cancella l'ordine vecchio e torna al catalogo
+        function faiNuovoOrdine() {
+            localStorage.removeItem("shaharia_ultimo_ordine");
+            mostraNotifica("Pronto per un nuovo ordine nel giardino!", "success");
+            cambiaVista("prodotti");
+        }
+
+        /* =================================================================
+           PARTE 5: NAVIGAZIONE TRA SCHEDE, TOAST E PETALI ANIMATI
+           ================================================================= */
+
+        function cambiaVista(vista) {
+            var sezioni = ["vetrina", "prodotti", "carrello", "conferma"];
+            sezioni.forEach(function (s) {
+                var el = document.getElementById("view-" + s);
+                if (el) {
+                    if (s === vista) {
+                        el.classList.remove("hidden");
+                    } else {
+                        el.classList.add("hidden");
+                    }
+                }
+            });
+
+            // Aggiorna stato attivo dei pulsanti nel menu
+            ["vetrina", "prodotti", "carrello"].forEach(function (navId) {
+                var btn = document.getElementById("nav-" + navId);
+                if (!btn) return;
+                if (navId === vista) {
+                    btn.classList.add("bg-bosco", "text-crema", "shadow-sm");
+                    btn.classList.remove("text-bosco", "hover:bg-white/60");
+                } else {
+                    btn.classList.remove("bg-bosco", "text-crema", "shadow-sm");
+                    btn.classList.add("text-bosco", "hover:bg-white/60");
+                }
+            });
+
+            // Aggiorna i contenuti specifici della vista selezionata
+            if (vista === "vetrina") mostraProdotti("vetrina", 3);
+            if (vista === "prodotti") mostraProdotti("prodotti");
+            if (vista === "carrello") mostraCarrello();
+            if (vista === "conferma") mostraConferma();
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function scrollToFeatured() {
+            var el = document.getElementById("featured-anchor");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+        }
+
+        // Notifica visiva elegante al posto di alert()
+        function mostraNotifica(messaggio, tipo) {
+            var box = document.getElementById("toast-box");
+            if (!box) return;
+
+            var toast = document.createElement("div");
+            var bgClass = tipo === "success"
+                ? "bg-bosco text-crema border-salvia"
+                : "bg-white text-bosco border-salvia-light";
+
+            toast.className = "pointer-events-auto px-4 py-3 rounded-2xl border shadow-lg text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0 " + bgClass;
+            toast.textContent = messaggio;
+            box.appendChild(toast);
+
+            requestAnimationFrame(function () {
+                toast.classList.remove("translate-y-2", "opacity-0");
+            });
+
+            setTimeout(function () {
+                toast.classList.add("opacity-0", "translate-y-2");
+                setTimeout(function () {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 300);
+            }, 2600);
+        }
+
+        // Genera delicati petali di rosa SVG che fluttuano sullo sfondo
+        function avviaPetaliSfondo() {
+            var container = document.getElementById("petals-container");
+            if (!container) return;
+
+            var colori = ["#E8A5B2", "#F4C2CC", "#D88C9A", "#E3EAE2"];
+            var numeroPetali = 14;
+
+            for (var i = 0; i < numeroPetali; i++) {
+                var petalo = document.createElement("div");
+                petalo.className = "falling-petal";
+
+                var left = Math.random() * 100;
+                var duration = 12 + Math.random() * 14;
+                var delay = Math.random() * -20;
+                var size = 14 + Math.random() * 14;
+                var colore = colori[i % colori.length];
+
+                petalo.style.left = left + "vw";
+                petalo.style.animationDuration = duration + "s";
+                petalo.style.animationDelay = delay + "s";
+
+                petalo.innerHTML = `
+                    <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${colore}">
+                        <path d="M12 2C7 6 4 11 6 16C8 20 12 22 12 22C12 22 16 20 18 16C20 11 17 6 12 2Z"/>
+                    </svg>
+                `;
+                container.appendChild(petalo);
+            }
+        }
+
+        // Avvio applicazione al caricamento della pagina
+        window.onload = function () {
+            avviaPetaliSfondo();
+            aggiornaBadgeCarrello(false);
+            cambiaVista("vetrina");
+        };
+    </script>
+</body>
+</html>
